@@ -1,0 +1,5 @@
+if (!JavaVersion.current().java8Compatible) {
+  throw new GradleException("version is not java-8 exception")
+}
+
+rootProject.name = 'crdt'
