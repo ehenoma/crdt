@@ -1,5 +1,7 @@
 # crtd
 
+[![Javadocs](https://www.javadoc.io/badge/merlinosayimwen/crtd.svg)](https://www.javadoc.io/doc/merlinosayimwen/crtd)
+
 Java library that provides Conflict-free replicated data types.
 
 ## References

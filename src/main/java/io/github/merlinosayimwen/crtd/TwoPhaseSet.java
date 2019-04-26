@@ -95,6 +95,9 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
     if (added.contains(element)) {
       return this;
     }
+    if (removed.contains(element)) {
+      return this;
+    }
     Collection<V> added = addedElements();
     added.add(element);
     return TwoPhaseSet.create(added, removed);
@@ -239,6 +242,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
   public static <V> TwoPhaseSet<V> empty() {
     return (TwoPhaseSet<V>) Lazy.EMPTY;
   }
+
   /**
    * @param added Elements that have been added to the set.
    * @param removed Subset of the added elements, contains removed elements;
@@ -258,14 +262,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
     }
 
     added.forEach(Preconditions::checkNotNull);
-
-    for (V element : removed) {
-      // The removed-element-set is a subset of the added-elements, thus we
-      // are ensuring that it does only contain elements which are already
-      // in the set of added elements.
-      Preconditions.checkNotNull(element);
-      Preconditions.checkArgument(added.contains(element));
-    }
+    removed.forEach(Preconditions::checkNotNull);
 
     return new TwoPhaseSet<>(added, removed);
   }
