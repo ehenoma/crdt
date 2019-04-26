@@ -19,8 +19,6 @@
 
 package io.github.merlinosayimwen.crtd;
 
-import javax.annotation.CheckReturnValue;
-import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 
 /**
@@ -31,13 +29,10 @@ import java.util.Collection;
  * @param <V> Type of the sets elements.
  * @param <T> Type of the implementation.
  */
-@Immutable
 public interface ReplicatedSet<V, T extends ReplicatedSet<V, T>> extends Replicated<T> {
 
-  @CheckReturnValue
   T add(V element);
 
-  @CheckReturnValue
   T remove(V element);
 
   boolean contains(V value);

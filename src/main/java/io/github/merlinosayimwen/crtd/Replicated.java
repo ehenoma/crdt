@@ -19,8 +19,6 @@
 
 package io.github.merlinosayimwen.crtd;
 
-import javax.annotation.CheckReturnValue;
-
 /**
  * Immutable type that can be safely replicated without any conflicts, also known as 'Conflict-free
  * replicated data type' (CRDT).
@@ -35,7 +33,6 @@ public interface Replicated<M extends Replicated<M>> {
    * @param other Value that is merged with the instance.
    * @return New instance that contains the merge results of both values.
    */
-  @CheckReturnValue
   M merge(M other);
 
   Object value();

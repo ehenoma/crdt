@@ -21,14 +21,12 @@ package io.github.merlinosayimwen.crtd;
 
 import com.google.common.collect.Sets;
 
-import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Immutable
 public class GrowOnlySet<V> implements ReplicatedSet<V, GrowOnlySet<V>> {
   private static final class Lazy {
     // Initialization-on-demand holder idiom
