@@ -49,7 +49,15 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
         new TwoPhaseSet<>(Collections.emptyList(), Collections.emptyList());
   }
 
+  /**
+   * Set of elements that have been added.
+   */
   private Collection<V> added;
+
+  /**
+   * Subset of the added elements that contains all elements
+   * which have been removed from the set.
+   */
   private Collection<V> removed;
 
   private TwoPhaseSet(Collection<V> added, Collection<V> removed) {
@@ -57,13 +65,32 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
     this.removed = removed;
   }
 
+  /**
+   * Returns a set that contains only the added elements that have not
+   * been removed.
+   *
+   * @return Set of present values in the TwoPhaseSet.
+   */
   @Override
   public Collection<V> value() {
     return added.stream().filter(this::isNotRemoved).collect(Collectors.toSet());
   }
 
+  private boolean isNotRemoved(V value) {
+    return !removed.contains(value);
+  }
+
+  /**
+   * Returns a copy of the instance, that contains the element.
+   * <p>
+   * This creates a new set from the instances elements and adds the
+   * argument to it. If the argument is already contained in the
+   * instance, the same instance is returned.
+   *
+   * @param element The element to add.
+   * @return Set that contains the added element.
+   */
   @Override
-  @CheckReturnValue
   public TwoPhaseSet<V> add(V element) {
     if (added.contains(element)) {
       return this;
@@ -73,8 +100,19 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
     return TwoPhaseSet.create(added, removed);
   }
 
+  /**
+   * Returns a copy of the instance, that does not contain the element.
+   * <p>
+   * This creates a new set from the instances elements and
+   * adds the element to its removed elements. It will not remove
+   * anything from the set of added elements. In order for the element
+   * to be removed, it has to be in the added elements. If the
+   * element is already removed, the same instance is returned.
+   *
+   * @param element The element to remove.
+   * @return Set that does not contain the element.
+   */
   @Override
-  @CheckReturnValue
   public TwoPhaseSet<V> remove(V element) {
     if (removed.contains(element)) {
       return this;
@@ -87,15 +125,26 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
     return TwoPhaseSet.create(added, removed);
   }
 
-  private boolean isNotRemoved(V value) {
-    return !removed.contains(value);
-  }
 
+  /**
+   * Returns true, if the value is in the added-elements set and
+   * not contained in the removed-element-set.
+   *
+    * @param value Value that is looked up in the phase sets.
+   * @return If the element is in the set.
+   */
   @Override
   public boolean contains(V value) {
     return added.contains(value) && isNotRemoved(value);
   }
 
+  /**
+   * Merges to TwoPhaseSets by merging their added-elements and
+   * removed-elements sets and returning an instance with the results.
+   *
+   * @param other Value that is merged with the instance.
+   * @return Set with the merged results from both sets.
+   */
   @Override
   public TwoPhaseSet<V> merge(TwoPhaseSet<V> other) {
     if (added.isEmpty() && other.added.isEmpty()) {
@@ -106,15 +155,31 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
     return TwoPhaseSet.create(mergedAdds, mergedRemoves);
   }
 
+  /**
+   * Returns the count of present elements.
+   *
+   * @return Count of present elements.
+   */
   @Override
   public int size() {
     return added.size() - removed.size();
   }
 
+  /**
+   * Returns a defensive copy of the added elements.
+   * @return Elements that have been added to the set.
+   */
   public Collection<V> addedElements() {
     return new HashSet<>(added);
   }
 
+  /**
+   * Returns a defensive copy of the removed elements.
+   * <p>
+   * This is always a subset of the added-elements.
+   *
+   * @return Elements that have been removed from the set.
+   */
   public Collection<V> removedElements() {
     return new HashSet<>(added);
   }
