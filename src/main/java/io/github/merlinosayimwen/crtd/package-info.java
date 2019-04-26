@@ -18,6 +18,8 @@
 //  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /**
+ * This library contains Conflict-free replicated data types.
+ *
  * @see io.github.merlinosayimwen.crtd.Replicated
  */
 @ParametersAreNonnullByDefault
