@@ -44,12 +44,13 @@ public final class TwoPhaseSetTest extends TestCase {
    * Calls {@link ReplicatedSet#remove(Object)} ona set and asserts that the element has not been
    * removed from the instance and is not present in the returned updated set.
    */
-  public void testRemove() {
+  public void testTombstones() {
     TwoPhaseSet<String> set = TwoPhaseSet.of("a", "b", "c");
     TwoPhaseSet<String> updated = set.remove("a");
 
     assertTrue(set.contains("a"));
     assertFalse(updated.contains("a"));
+    assertTrue(updated.tombstones().contains("a"));
   }
 
   /**

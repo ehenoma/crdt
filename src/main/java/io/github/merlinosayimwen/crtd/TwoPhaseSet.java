@@ -84,6 +84,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
   public Collection<V> value() {
     return added.stream().filter(this::isNotRemoved).collect(Collectors.toSet());
   }
+
   /**
    * Returns a copy of the instance, that contains the element.
    *
@@ -195,9 +196,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
   }
 
   /**
-   * Returns a defensive copy of the removed elements.
-   *
-   * <p>This is always a subset of the added-elements.
+   * List of removed elements, called tombstones.
    *
    * @return Elements that have been removed from the set.
    */
