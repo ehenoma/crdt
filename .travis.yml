@@ -14,4 +14,4 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 script:
-  - ./gradlew -Prerelease -PosshrUsername=OSSHR_USERNAME -PosshrPassword=OSSHR_PASSWORD uploadArchives
+  - ./gradlew -Prerelease -PossrhUsername=OSSRH_USERNAME -PossrhPassword=OSSRH_PASSWORD uploadArchives
