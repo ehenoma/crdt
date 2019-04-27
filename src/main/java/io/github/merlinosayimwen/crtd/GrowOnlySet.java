@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class GrowOnlySet<V> implements ReplicatedSet<V, GrowOnlySet<V>> {
+public final class GrowOnlySet<V> implements ReplicatedSet<V, GrowOnlySet<V>> {
   private static final class Lazy {
     // Initialization-on-demand holder idiom
     static final GrowOnlySet<?> EMPTY = new GrowOnlySet<>(Collections.emptyList());

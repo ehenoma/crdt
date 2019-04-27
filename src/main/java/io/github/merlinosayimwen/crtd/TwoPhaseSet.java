@@ -43,16 +43,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
   /** The current and past elements of the set. */
   private Collection<V> added;
 
-  /**
-   * List of removed elements, called tombstones.
-   * <p>
-   * Can not be called a subset of the added elements, because the TwoPhaseSet aims to
-   * provide consistency without coordination. If tombstones would have to be in the set
-   * of added elements and the replicating node sends the sets updates in a wrong order,
-   * remove changes could get ignored. Tombstones can exist earlier than an added element
-   * and still override it, because of the "remove-wins" semantics. That being said,
-   * they are usually contained in the set of added elements.
-   */
+  /** List of removed elements, called tombstones. */
   private Collection<V> tombstones;
 
   private TwoPhaseSet(Collection<V> added, Collection<V> tombstones) {
@@ -91,9 +82,9 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
       // onto the set. We can ignore this call and return the same instance.
       return this;
     }
-    Collection<V> added = addedElements();
-    added.add(element);
-    return new TwoPhaseSet<>(added, tombstones);
+    Collection<V> copy = addedElements();
+    copy.add(element);
+    return new TwoPhaseSet<>(copy, this.tombstones);
   }
 
   /**
@@ -101,8 +92,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
    *
    * <p>This creates a new set from the instances elements and adds the element to its removed
    * elements. It will not remove anything from the set of added elements. In order for the element
-   * to be removed, it has to be in the added elements. If the element is already removed, the same
-   * instance is returned.
+   * to be removed, it has to be in the added elements.
    *
    * @param element The element to remove.
    * @return Set that does not contain the element.
@@ -112,12 +102,9 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
     if (hasTombstone(element)) {
       return this;
     }
-    if (!added.contains(element)) {
-      return this;
-    }
-    Collection<V> tombstones = tombstones();
-    tombstones.add(element);
-    return TwoPhaseSet.create(added, tombstones);
+    Collection<V> copy = tombstones();
+    copy.add(element);
+    return TwoPhaseSet.create(copy, this.tombstones);
   }
 
   /**
@@ -159,10 +146,6 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
     return added.size() - tombstones.size();
   }
 
-  private int totalSize() {
-    return added.size() + tombstones.size();
-  }
-
   private boolean isNotRemoved(V value) {
     return !hasTombstone(value);
   }
@@ -174,6 +157,9 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
   /**
    * Returns a defensive copy of the added elements.
    *
+   * <p>All elements that have been added to the set in the past and are currently contained, are
+   * inside of this set.
+   *
    * @return Elements that have been added to the set.
    */
   public Collection<V> addedElements() {
@@ -182,6 +168,13 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
 
   /**
    * List of removed elements, called tombstones.
+   *
+   * <p>Can not be called a subset of the added elements, because the TwoPhaseSet aims to provide
+   * consistency without coordination. If tombstones would have to be in the set of added elements
+   * and the replicating node sends the sets updates in a wrong order, remove changes could get
+   * ignored. Tombstones can exist earlier than an added element and still override it, because of
+   * the "remove-wins" semantics. That being said, they are usually contained in the set of added
+   * elements.
    *
    * @return Elements that have been removed from the set.
    */
