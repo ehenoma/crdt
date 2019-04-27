@@ -2,20 +2,21 @@
 // Use of this source code is governed by a MIT-style license that can be
 // found in the LICENSE file.
 
-package io.github.merlinosayimwen.crtd;
+package io.github.merlinosayimwen.crtd.set;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptySet;
 
 /**
- * Immutable append only set implementation that uses tombstones to indicate removed elements.
+ * Append only set implementation that uses tombstones to indicate removed elements.
  *
  * <p>The TwoPhaseSet has two underlying sets where one is used to store all the current and past
  * elements and the other stores tombstones. Tombstones are created to indicate, that a specific
@@ -23,23 +24,10 @@ import static java.util.Collections.emptySet;
  * difference of all-elements and the tombstones. The TwoPhaseSet uses "remove-wins" semantics,
  * therefor a removed entry will have precedence over an added one.
  *
- * <p>This class is not mutable. Every update to its state will first create an identical copy and
- * then apply the update to the copy. This allows us to do optimisations for certain operations.
- * When multiple updates need to be done without the overhead of a shallow-copy, the Builder may be
- * used.
- *
  * @see ReplicatedSet
  * @param <V> Type of the sets elements.
  */
-public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
-  // Uses the initialization on demand holder idiom to create a
-  // lazy and lock-free way to access common values.
-  private static final class Lazy {
-    // Used to return empty sets without allocating a new instance.
-    // This way we do not have more short-living objects in our heaps nursery.
-    static final TwoPhaseSet<?> EMPTY = new TwoPhaseSet<>(emptySet(), emptySet());
-  }
-
+public final class TwoPhaseSet<V> implements MergeableReplicatedSet<V, TwoPhaseSet<V>> {
   /** The current and past elements of the set. */
   private Collection<V> added;
 
@@ -57,34 +45,27 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
    * @return Set of present values in the TwoPhaseSet.
    */
   @Override
-  public Collection<V> value() {
+  public Set<V> toSet() {
     return added.stream().filter(this::isNotRemoved).collect(Collectors.toSet());
   }
 
   /**
-   * Returns a copy of the instance, that contains the element.
-   *
-   * <p>This creates a new set from the instances elements and adds the argument to it. If the
-   * argument is already contained in the instance, the same instance is returned.
+   * Adds the element to the set if no tombstone of that element exists.
    *
    * @param element The element to add.
-   * @return Set that contains the added element.
    */
   @Override
-  public TwoPhaseSet<V> add(V element) {
+  public void add(V element) {
     Preconditions.checkNotNull(element);
-
     if (added.contains(element)) {
-      return this;
+      return;
     }
     if (hasTombstone(element)) {
-      // The element already has a tombstone and will not have an effect
-      // onto the set. We can ignore this call and return the same instance.
-      return this;
+      // The element already has a tombstone and adding it would
+      // not have an effect onto the set.
+      return;
     }
-    Collection<V> copy = addedElements();
-    copy.add(element);
-    return new TwoPhaseSet<>(copy, this.tombstones);
+    added.add(element);
   }
 
   /**
@@ -98,13 +79,12 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
    * @return Set that does not contain the element.
    */
   @Override
-  public TwoPhaseSet<V> remove(V element) {
+  public boolean remove(V element) {
     if (hasTombstone(element)) {
-      return this;
+      return false;
     }
-    Collection<V> copy = tombstones();
-    copy.add(element);
-    return TwoPhaseSet.create(copy, this.tombstones);
+    tombstones.add(element);
+    return true;
   }
 
   /**
@@ -162,7 +142,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
    *
    * @return Elements that have been added to the set.
    */
-  public Collection<V> addedElements() {
+  public Set<V> addedElements() {
     return new HashSet<>(added);
   }
 
@@ -178,7 +158,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
    *
    * @return Elements that have been removed from the set.
    */
-  public Collection<V> tombstones() {
+  public Set<V> tombstones() {
     return new HashSet<>(added);
   }
 
@@ -233,9 +213,8 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
    * @param <V> Type of the sets elements.
    * @return Empty TwoPhaseSet.
    */
-  @SuppressWarnings("unchecked")
   public static <V> TwoPhaseSet<V> empty() {
-    return (TwoPhaseSet<V>) Lazy.EMPTY;
+    return new TwoPhaseSet<>(emptySet(), emptySet());
   }
 
   /**
@@ -262,41 +241,5 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V, TwoPhaseSet<V>> {
 
   private static <V> Collection<V> mergeSets(Collection<V> left, Collection<V> right) {
     return Stream.concat(left.stream(), right.stream()).collect(Collectors.toSet());
-  }
-
-  public static <V> Builder<V> newBuilder() {
-    return new Builder<>(new HashSet<>(), new HashSet<>());
-  }
-
-  public static <V> Builder<V> newBuilder(TwoPhaseSet<V> prototype) {
-    Preconditions.checkNotNull(prototype);
-    return new Builder<>(prototype.addedElements(), prototype.tombstones());
-  }
-
-  public static final class Builder<V> {
-    private Collection<V> added;
-    private Collection<V> tombstones;
-
-    private Builder(Collection<V> added, Collection<V> tombstones) {
-      this.added = added;
-      this.tombstones = tombstones;
-    }
-
-    public Builder<V> add(V element) {
-      Preconditions.checkNotNull(element);
-      added.add(element);
-      return this;
-    }
-
-    public Builder<V> addTombstone(V element) {
-      Preconditions.checkNotNull(element);
-      added.add(element);
-      tombstones.add(element);
-      return this;
-    }
-
-    public TwoPhaseSet<V> create() {
-      return TwoPhaseSet.create(added, tombstones);
-    }
   }
 }

@@ -5,7 +5,6 @@
 /**
  * This library contains Conflict-free replicated data types.
  *
- * @see io.github.merlinosayimwen.crtd.Replicated
  */
 @ParametersAreNonnullByDefault
 package io.github.merlinosayimwen.crtd;

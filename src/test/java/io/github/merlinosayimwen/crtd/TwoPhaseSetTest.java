@@ -4,6 +4,8 @@
 
 package io.github.merlinosayimwen.crtd;
 
+import io.github.merlinosayimwen.crtd.set.ReplicatedSet;
+import io.github.merlinosayimwen.crtd.set.TwoPhaseSet;
 import junit.framework.TestCase;
 
 /**
@@ -14,28 +16,16 @@ import junit.framework.TestCase;
 public final class TwoPhaseSetTest extends TestCase {
 
   /**
-   * Calls {@link ReplicatedSet#add(Object)} on a set and asserts that it has not modified the
-   * instances state.
-   */
-  public void testImmutability() {
-    TwoPhaseSet<String> set = TwoPhaseSet.empty();
-    ignore(set.add("test"));
-
-    assertEquals(set.size(), 0);
-    assertEquals(set.value().size(), 0);
-  }
-
-  /**
    * Calls {@link ReplicatedSet#remove(Object)} ona set and asserts that the element has not been
    * removed from the instance and is not present in the returned updated set.
    */
   public void testTombstones() {
     TwoPhaseSet<String> set = TwoPhaseSet.of("a", "b", "c");
-    TwoPhaseSet<String> updated = set.remove("a");
-
     assertTrue(set.contains("a"));
-    assertFalse(updated.contains("a"));
-    assertTrue(updated.tombstones().contains("a"));
+
+    set.remove("a");
+    assertFalse(set.contains("a"));
+    assertTrue(set.tombstones().contains("a"));
   }
 
   /**

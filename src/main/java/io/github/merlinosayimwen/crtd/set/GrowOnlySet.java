@@ -2,17 +2,20 @@
 // Use of this source code is governed by a MIT-style license that can be
 // found in the LICENSE file.
 
-package io.github.merlinosayimwen.crtd;
-
-import com.google.common.collect.Sets;
+package io.github.merlinosayimwen.crtd.set;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class GrowOnlySet<V> implements ReplicatedSet<V, GrowOnlySet<V>> {
+/**
+ *
+ * @param <V>
+ */
+public final class GrowOnlySet<V> implements MergeableReplicatedSet<V, GrowOnlySet<V>> {
   private static final class Lazy {
     // Initialization-on-demand holder idiom
     static final GrowOnlySet<?> EMPTY = new GrowOnlySet<>(Collections.emptyList());
@@ -35,18 +38,16 @@ public final class GrowOnlySet<V> implements ReplicatedSet<V, GrowOnlySet<V>> {
   }
 
   @Override
-  public GrowOnlySet<V> add(V element) {
+  public void add(V element) {
     if (contains(element)) {
-      return this;
+      return;
     }
-    Collection<V> copied = Sets.newHashSet(elements);
-    copied.add(element);
-    return new GrowOnlySet<>(copied);
+    elements.add(element);
   }
 
   @Override
-  public GrowOnlySet<V> remove(V element) {
-    return this;
+  public boolean remove(V element) {
+    return false;
   }
 
   @Override
@@ -60,7 +61,7 @@ public final class GrowOnlySet<V> implements ReplicatedSet<V, GrowOnlySet<V>> {
   }
 
   @Override
-  public Collection<V> value() {
+  public Set<V> toSet() {
     return new HashSet<>(elements);
   }
 
