@@ -26,7 +26,7 @@ public final class LastWriteWinsElementSet<E> implements MergeableReplicatedSet<
   /**
    *
    */
-  private static final class Mutation {
+  static final class Mutation {
     private static final long INVALID_MILLIS = 0;
     private static final class Lazy {
       static final Instant EMPTY_INSTANT = Instant.ofEpochMilli(INVALID_MILLIS);

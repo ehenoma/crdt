@@ -20,7 +20,7 @@ import static java.util.Collections.emptySet;
  *
  * <p>The TwoPhaseSet has two underlying sets where one is used to store all the current and past
  * elements and the other stores tombstones. Tombstones are created to indicate, that a specific
- * value has been removed from the set. To get the set of current entries, one has to take the
+ * value has been removed from the set. To get the set of current elements, one has to take the
  * difference of all-elements and the tombstones. The TwoPhaseSet uses "remove-wins" semantics,
  * therefor a removed entry will have precedence over an added one.
  *
