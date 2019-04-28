@@ -1,4 +1,4 @@
-# crtd
+# Conflict-free Replicated Data Types in Java
 
 [![Build Status](https://travis-ci.com/merlinosayimwen/crdt.svg?branch=master)](https://travis-ci.com/merlinosayimwen/crdt)
 
