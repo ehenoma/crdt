@@ -14,8 +14,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Collections.emptySet;
-
 /**
  * Append only set implementation that uses tombstones to indicate removed elements.
  *
@@ -194,7 +192,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
       Preconditions.checkNotNull(element);
       added.add(element);
     }
-    return new TwoPhaseSet<>(added, emptySet());
+    return new TwoPhaseSet<>(added, new HashSet<>());
   }
 
   @SafeVarargs
@@ -205,7 +203,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
     }
     Collection<V> added =
         Stream.of(elements).peek(Preconditions::checkNotNull).collect(Collectors.toSet());
-    return new TwoPhaseSet<>(added, emptySet());
+    return new TwoPhaseSet<>(added, new HashSet<>());
   }
 
   /**
@@ -215,7 +213,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
    * @return Empty TwoPhaseSet.
    */
   public static <V> TwoPhaseSet<V> empty() {
-    return new TwoPhaseSet<>(emptySet(), emptySet());
+    return new TwoPhaseSet<>(new HashSet<>(), new HashSet<>());
   }
 
   /**
@@ -237,7 +235,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
     added.forEach(Preconditions::checkNotNull);
     removed.forEach(Preconditions::checkNotNull);
 
-    return new TwoPhaseSet<>(added, removed);
+    return new TwoPhaseSet<>(new HashSet<>(added), new HashSet<>(removed));
   }
 
   private static <V> Collection<V> mergeSets(Collection<V> left, Collection<V> right) {
