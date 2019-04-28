@@ -14,7 +14,8 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 script:
-  - ./gradlew sonarqube \
+  - |
+    ./gradlew sonarqube \
       -Dsonar.projectKey=merlinosayimwen_crdt \
       -Dsonar.organization=merlinosayimwen-github \
       -Dsonar.host.url=https://sonarcloud.io \
