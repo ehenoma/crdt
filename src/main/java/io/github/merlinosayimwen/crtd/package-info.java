@@ -3,8 +3,7 @@
 // found in the LICENSE file.
 
 /**
- * This library contains Conflict-free replicated data types.
- *
+ * Collection of Conflict-free replicated data types.
  */
 @ParametersAreNonnullByDefault
 package io.github.merlinosayimwen.crtd;
