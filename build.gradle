@@ -1,22 +1,8 @@
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-  dependencies {
-    classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
-  }
-}
-
 plugins {
   id 'java'
-  id 'maven'
-  id 'signing'
 }
 
-apply plugin: 'io.codearte.nexus-staging'
-
 group = 'io.github.merlinosayimwen'
-archivesBaseName = 'crtd'
 version = '1.0.0'
 
 repositories {
@@ -26,74 +12,5 @@ repositories {
 
 dependencies {
   implementation group: 'com.google.guava', name: 'guava', version: '27.1-jre'
-  testCompile group: 'junit', name: 'junit', version: '4.12'
-}
-
-task javadocJar(type: Jar) {
-  classifier = 'javadoc'
-  from javadoc
-}
-
-task sourcesJar(type: Jar) {
-  classifier = 'sources'
-  from sourceSets.main.allSource
-}
-
-signing {
-  sign configurations.archives
-}
-
-artifacts {
-  archives javadocJar, sourcesJar
-}
-
-uploadArchives {
-  repositories {
-    mavenDeployer {
-      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-        authentication(userName: ossrhUsername, password: ossrhPassword)
-      }
-
-      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-        authentication(userName: ossrhUsername, password: ossrhPassword)
-      }
-
-      pom.project {
-        name 'Crtd'
-        packaging 'jar'
-        artifactId 'crtd'
-        description 'Conflict-free replicated data types for Java'
-        url 'https://github.com/merlinosayimwen/crtd'
-
-        scm {
-          connection 'scm:svn:http://foo.googlecode.com/svn/trunk/'
-          developerConnection 'scm:svn:https://foo.googlecode.com/svn/trunk/'
-          url 'http://foo.googlecode.com/svn/trunk/'
-        }
-
-        licenses {
-          license {
-            name 'The MIT License (MIT)'
-            url 'http://opensource.org/licenses/MIT'
-            distribution 'repo'
-          }
-        }
-
-        developers {
-          developer {
-            id 'ehenoma'
-            name "Merlin Ehenoma Osayimwen"
-            email 'merlinosayimwen@gmail.com'
-          }
-        }
-      }
-    }
-  }
-}
-
-nexusStaging {
-  username = ossrhUsername
-  password = ossrhPassword
+  testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
