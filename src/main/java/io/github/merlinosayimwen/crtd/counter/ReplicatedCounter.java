@@ -4,7 +4,7 @@
 
 package io.github.merlinosayimwen.crtd.counter;
 
-public interface ReplicatedCounter<T extends ReplicatedCounter<T>> extends Replicated<T> {
+public interface ReplicatedCounter {
 
-  Long value(); // Has to be of type object
+  long value(); // Has to be of type object
 }

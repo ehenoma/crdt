@@ -4,17 +4,19 @@
 
 package io.github.merlinosayimwen.crtd.counter;
 
+import io.github.merlinosayimwen.crtd.Mergeable;
+
 import java.util.Map;
 
 /**
  * @param <K> Type of the id that identifies a node.
  */
-public class GrowOnlyCounter<K> implements ReplicatedCounter<GrowOnlyCounter<K>> {
+public class GrowOnlyCounter<K> implements ReplicatedCounter, Mergeable<GrowOnlyCounter<K>> {
   private Map<K, Long> summands;
 
   @Override
-  public Long value() {
-    return null;
+  public long value() {
+    return 0;
   }
 
   @Override

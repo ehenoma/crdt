@@ -6,6 +6,7 @@ package io.github.merlinosayimwen.crtd.set;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import io.github.merlinosayimwen.crtd.Mergeable;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,7 +28,7 @@ import static java.util.Collections.emptySet;
  * @see ReplicatedSet
  * @param <V> Type of the sets elements.
  */
-public final class TwoPhaseSet<V> implements MergeableReplicatedSet<V, TwoPhaseSet<V>> {
+public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhaseSet<V>> {
   /** The current and past elements of the set. */
   private Collection<V> added;
 

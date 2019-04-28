@@ -5,6 +5,7 @@
 package io.github.merlinosayimwen.crtd.set;
 
 import com.google.common.base.Preconditions;
+import io.github.merlinosayimwen.crtd.Mergeable;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -21,7 +22,7 @@ import java.util.*;
  *
  * @param <E> Type of the sets elements.
  */
-public final class LastWriteWinsElementSet<E> implements MergeableReplicatedSet<E, LastWriteWinsElementSet<E>> {
+public final class LastWriteWinsElementSet<E> implements ReplicatedSet<E>, Mergeable<LastWriteWinsElementSet<E>> {
 
   /**
    *

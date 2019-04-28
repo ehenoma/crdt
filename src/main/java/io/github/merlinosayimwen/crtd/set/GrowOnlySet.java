@@ -4,6 +4,8 @@
 
 package io.github.merlinosayimwen.crtd.set;
 
+import io.github.merlinosayimwen.crtd.Mergeable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,7 +17,7 @@ import java.util.stream.Stream;
  *
  * @param <V>
  */
-public final class GrowOnlySet<V> implements MergeableReplicatedSet<V, GrowOnlySet<V>> {
+public final class GrowOnlySet<V> implements ReplicatedSet<V>, Mergeable<GrowOnlySet<V>> {
   private static final class Lazy {
     // Initialization-on-demand holder idiom
     static final GrowOnlySet<?> EMPTY = new GrowOnlySet<>(Collections.emptyList());
