@@ -6,6 +6,7 @@ package io.github.merlinosayimwen.crtd.set;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import io.github.merlinosayimwen.crtd.Mergeable;
 
 import java.util.Collection;
@@ -201,9 +202,8 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
     if (elements.length == 0) {
       return empty();
     }
-    Collection<V> added =
-        Stream.of(elements).peek(Preconditions::checkNotNull).collect(Collectors.toSet());
-    return new TwoPhaseSet<>(added, new HashSet<>());
+    Stream.of(elements).forEach(Preconditions::checkNotNull);
+    return new TwoPhaseSet<>(Sets.newHashSet(elements), new HashSet<>());
   }
 
   /**
