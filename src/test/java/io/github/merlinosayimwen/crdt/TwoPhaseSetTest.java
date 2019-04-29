@@ -2,9 +2,9 @@
 // Use of this source code is governed by a MIT-style license that can be
 // found in the LICENSE file.
 
-package io.github.merlinosayimwen.crtd;
+package io.github.merlinosayimwen.crdt;
 
-import io.github.merlinosayimwen.crtd.set.TwoPhaseSet;
+import io.github.merlinosayimwen.crdt.set.TwoPhaseSet;
 import junit.framework.TestCase;
 
 /**

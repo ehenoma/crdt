@@ -2,9 +2,9 @@
 // Use of this source code is governed by a MIT-style license that can be
 // found in the LICENSE file.
 
-package io.github.merlinosayimwen.crtd.counter;
+package io.github.merlinosayimwen.crdt.counter;
 
-import io.github.merlinosayimwen.crtd.Mergeable;
+import io.github.merlinosayimwen.crdt.Mergeable;
 
 import java.util.Map;
 

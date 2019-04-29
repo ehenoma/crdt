@@ -6,6 +6,6 @@
  * Collection of Conflict-free replicated data types.
  */
 @ParametersAreNonnullByDefault
-package io.github.merlinosayimwen.crtd;
+package io.github.merlinosayimwen.crdt;
 
 import javax.annotation.ParametersAreNonnullByDefault;

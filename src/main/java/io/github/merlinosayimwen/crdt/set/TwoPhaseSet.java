@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style license that can be
 // found in the LICENSE file.
 
-package io.github.merlinosayimwen.crtd.set;
+package io.github.merlinosayimwen.crdt.set;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,7 +14,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
-import io.github.merlinosayimwen.crtd.Mergeable;
+import io.github.merlinosayimwen.crdt.Mergeable;
 
 /**
  * Append only set implementation that uses tombstones to indicate removed elements.

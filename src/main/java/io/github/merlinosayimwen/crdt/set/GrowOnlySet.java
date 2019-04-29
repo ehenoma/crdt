@@ -2,9 +2,9 @@
 // Use of this source code is governed by a MIT-style license that can be
 // found in the LICENSE file.
 
-package io.github.merlinosayimwen.crtd.set;
+package io.github.merlinosayimwen.crdt.set;
 
-import io.github.merlinosayimwen.crtd.Mergeable;
+import io.github.merlinosayimwen.crdt.Mergeable;
 
 import java.util.Collection;
 import java.util.Collections;
