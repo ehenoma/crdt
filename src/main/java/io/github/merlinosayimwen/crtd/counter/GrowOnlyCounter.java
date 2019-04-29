@@ -12,7 +12,7 @@ import java.util.Map;
  * @param <K> Type of the id that identifies a node.
  */
 public class GrowOnlyCounter<K> implements ReplicatedCounter, Mergeable<GrowOnlyCounter<K>> {
-  private Map<K, Long> summands;
+  private Map<K, Long> entries;
 
   @Override
   public long value() {
