@@ -144,11 +144,4 @@ public final class TwoPhaseSetTest extends TestCase {
   private void assertTombstoneCreated(TwoPhaseSet<String> set, String element) {
     assertTrue(set.tombstones().contains(element));
   }
-
-  /**
-   * Ignores the parameter. Used to prevent complains from a linter.
-   *
-   * @param any Parameter that is ignored.
-   */
-  private static void ignore(Object any) {}
 }
