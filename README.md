@@ -1,6 +1,7 @@
 # Conflict-free Replicated Data Types in Java
 
 [![Build Status](https://travis-ci.com/merlinosayimwen/crdt.svg?branch=master)](https://travis-ci.com/merlinosayimwen/crdt)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=merlinosayimwen_crdt&metric=alert_status)](https://sonarcloud.io/dashboard?id=merlinosayimwen_crdt)
 
 Java library that provides Conflict-free replicated data types.
 
