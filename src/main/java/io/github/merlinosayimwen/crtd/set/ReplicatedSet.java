@@ -8,6 +8,8 @@ import java.util.Set;
 
 /**
  * Set that can be replicated.
+ * <p>
+ * Follows the contract of a set.
  *
  * @param <E> Type of the sets elements.
  */
