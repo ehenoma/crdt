@@ -124,7 +124,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
    */
   @Override
   public int size() {
-    return added.size() - tombstones.size();
+    return (int) added.stream().filter(this::isNotRemoved).count();
   }
 
   private boolean isNotRemoved(V value) {
