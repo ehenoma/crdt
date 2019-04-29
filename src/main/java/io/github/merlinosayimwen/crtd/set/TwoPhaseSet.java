@@ -159,7 +159,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
    * @return Elements that have been removed from the set.
    */
   public Set<V> tombstones() {
-    return new HashSet<>(added);
+    return new HashSet<>(tombstones);
   }
 
   @Override
