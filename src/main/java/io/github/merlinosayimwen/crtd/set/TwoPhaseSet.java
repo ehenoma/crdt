@@ -111,9 +111,9 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
     if (size() == 0 && other.size() == 0) {
       return TwoPhaseSet.empty();
     }
-    Collection<V> added = mergeSets(this.added, other.added);
-    Collection<V> tombstones = mergeSets(this.tombstones, other.tombstones);
-    return TwoPhaseSet.create(added, tombstones);
+    Collection<V> mergedAdds = mergeSets(this.added, other.added);
+    Collection<V> mergedTombstones = mergeSets(this.tombstones, other.tombstones);
+    return TwoPhaseSet.create(mergedAdds, mergedTombstones);
   }
 
   /**
