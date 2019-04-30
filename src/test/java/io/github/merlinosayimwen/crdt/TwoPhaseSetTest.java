@@ -6,6 +6,7 @@ package io.github.merlinosayimwen.crdt;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -69,6 +70,21 @@ public final class TwoPhaseSetTest {
     }
   }
 
+  @Test
+  public void testToSet() {
+    TwoPhaseSet<String> twoPhaseSet = TwoPhaseSet.of("a", "b", "c");
+    twoPhaseSet.remove("c");
+
+    Set<String> set = twoPhaseSet.toSet();
+    for (String element : twoPhaseSet.addedElements()) {
+      if (twoPhaseSet.contains(element)) {
+        assertTrue(set.contains(element));
+      } else {
+        assertFalse(set.contains(element));
+      }
+    }
+  }
+
   /**
    * Creates a set with N different initial elements and asserts that the
    * number returned by {@code size()} is N.
@@ -76,7 +92,7 @@ public final class TwoPhaseSetTest {
   @Test
   public void testSize_differentElements() {
     TwoPhaseSet<String> set = TwoPhaseSet.of("a", "b", "c");
-    assertEquals(set.size(), 3);
+    assertEquals(3, set.size());
   }
 
   /**
@@ -86,7 +102,7 @@ public final class TwoPhaseSetTest {
   @Test
   public void testSize_equalElements() {
     TwoPhaseSet<String> set = TwoPhaseSet.of("a", "b", "b");
-    assertEquals(set.size(), 2);
+    assertEquals(2, set.size());
   }
 
   /**
@@ -125,7 +141,7 @@ public final class TwoPhaseSetTest {
   @Test
   public void testTombstoneCreationAtInitialization() {
     TwoPhaseSet<String> set = TwoPhaseSet.empty();
-    assertEquals(set.tombstones().size(), 0);
+    assertEquals(0, set.tombstones().size());
   }
 
   /**
