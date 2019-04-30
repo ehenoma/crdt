@@ -7,23 +7,26 @@ package io.github.merlinosayimwen.crdt;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
 import io.github.merlinosayimwen.crdt.set.TwoPhaseSet;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests the TwoPhaseSet methods.
  *
  * @see TwoPhaseSet
  */
-public final class TwoPhaseSetTest extends TestCase {
+public final class TwoPhaseSetTest {
 
   /**
    * Creates a TwoPhaseSet from a collection of distinct strings and asserts
    * that the set contains all of the elements.
    */
+  @Test
   public void testCreation() {
     Collection<String> initialElements = Lists.newArrayList("a", "b", "c");
     TwoPhaseSet<String> set = TwoPhaseSet.of(initialElements);
@@ -34,6 +37,7 @@ public final class TwoPhaseSetTest extends TestCase {
    * Creates a TwoPhaseSet from a collection and asserts that modifications
    * to the collection do not affect the set.
    */
+  @Test
   public void testDefensive() {
     Collection<String> initial = new ArrayList<>();
     TwoPhaseSet<String> set = TwoPhaseSet.of(initial);
@@ -48,6 +52,7 @@ public final class TwoPhaseSetTest extends TestCase {
    * Tries to create a TwoPhaseSet from a list with a null element and
    * asserts that a NullPointerException is thrown.
    */
+  @Test
   public void testCreation_nullElement() {
     Collection<String> initialElements = Lists.newArrayList("a", "b", null);
     try {
@@ -68,6 +73,7 @@ public final class TwoPhaseSetTest extends TestCase {
    * Creates a set with N different initial elements and asserts that the
    * number returned by {@code size()} is N.
    */
+  @Test
   public void testSize_differentElements() {
     TwoPhaseSet<String> set = TwoPhaseSet.of("a", "b", "c");
     assertEquals(set.size(), 3);
@@ -77,6 +83,7 @@ public final class TwoPhaseSetTest extends TestCase {
    * Creates a set with initial elements that contain duplications and
    * asserts that the size equals the amount of distinct elements.
    */
+  @Test
   public void testSize_equalElements() {
     TwoPhaseSet<String> set = TwoPhaseSet.of("a", "b", "b");
     assertEquals(set.size(), 2);
@@ -87,6 +94,7 @@ public final class TwoPhaseSetTest extends TestCase {
    * set that contains element A and ensures that A is not
    * in the merge result and a tombstone for A exists.
    */
+  @Test
   public void testTombstoneWinsMerge() {
     TwoPhaseSet<String> set = TwoPhaseSet.empty();
     set.remove("a");
@@ -101,6 +109,7 @@ public final class TwoPhaseSetTest extends TestCase {
    * to the set and ensures that it fails by checking whether
    * A is within the set after the call to add.
    */
+  @Test
   public void testRemoveWins() {
     TwoPhaseSet<String> set = TwoPhaseSet.empty();
     set.remove("a");
@@ -113,6 +122,7 @@ public final class TwoPhaseSetTest extends TestCase {
   /**
    * Creates a new empty set and asserts that it has no tombstones.
    */
+  @Test
   public void testTombstoneCreationAtInitialization() {
     TwoPhaseSet<String> set = TwoPhaseSet.empty();
     assertEquals(set.tombstones().size(), 0);
@@ -124,6 +134,7 @@ public final class TwoPhaseSetTest extends TestCase {
    * the set at the time that {@code remove} is called. This is crucial
    * for coordination free use of this type.
    */
+  @Test
   public void testTombstoneCreation_elementAbsent() {
     testTombstoneCreation(TwoPhaseSet.empty(), "a");
   }
@@ -132,6 +143,7 @@ public final class TwoPhaseSetTest extends TestCase {
    * Removes an element from a set that contains the element and
    * ensures that a tombstone is created.
    */
+  @Test
   public void testTombstoneCreation_elementPresent() {
     testTombstoneCreation(TwoPhaseSet.of("a"), "a");
   }

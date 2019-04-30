@@ -15,8 +15,6 @@ repositories {
 dependencies {
   implementation group: 'com.google.guava', name: 'guava', version: '27.1-jre'
   testImplementation group: 'junit', name: 'junit', version: '4.12'
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.0.3'
-  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.0.3'
 }
 
 jacocoTestReport {
@@ -25,10 +23,4 @@ jacocoTestReport {
   }
 }
 
-test {
-  useJUnitPlatform()
-  dependsOn 'cleanTest'
-  testLogging {
-    events "passed", "skipped", "failed"
-  }
-}
+check.dependsOn jacocoTestReport
