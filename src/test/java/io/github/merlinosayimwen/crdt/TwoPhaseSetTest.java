@@ -86,6 +86,21 @@ public final class TwoPhaseSetTest {
   }
 
   /**
+   * Creates a set with some elements, clears it and asserts that
+   * all a tombstone for all the initial elements has been created
+   * and that the sets {@code size()} method returns 0.
+   */
+  @Test
+  public void testClear() {
+    TwoPhaseSet<String> set = TwoPhaseSet.of("a", "b" ,"c");
+    assertEquals(3, set.size());
+
+    assertTrue(set.clear());
+    assertEquals(0, set.size());
+    assertTombstonesCreated(set, "a", "b", "c");
+  }
+
+  /**
    * Creates a set with N different initial elements and asserts that the
    * number returned by {@code size()} is N.
    */
@@ -171,5 +186,11 @@ public final class TwoPhaseSetTest {
 
   private void assertTombstoneCreated(TwoPhaseSet<String> set, String element) {
     assertTrue(set.tombstones().contains(element));
+  }
+
+  private void assertTombstonesCreated(TwoPhaseSet<String> set, String ...elements) {
+    for (String element : elements) {
+      assertTombstoneCreated(set, element);
+    }
   }
 }

@@ -1,4 +1,20 @@
 package io.github.merlinosayimwen.crdt;
 
-public class ReplicatedSetTests {
+import io.github.merlinosayimwen.crdt.set.ReplicatedSet;
+import junit.framework.AssertionFailedError;
+
+public final class ReplicatedSetTests {
+  private ReplicatedSetTests() {}
+
+  public static <E> void assertContains(ReplicatedSet<E> set, E element) {
+    if (!set.contains(element)) {
+      throw new AssertionFailedError("set does not contain element " + element.toString());
+    }
+  }
+
+  public static <E> void assertContainsAll(ReplicatedSet<E> set, E... elements) {
+    for (E element : elements) {
+      assertContains(set, element);
+    }
+  }
 }
