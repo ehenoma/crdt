@@ -202,13 +202,14 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
   }
 
   @SafeVarargs
-  public static <V> TwoPhaseSet<V> of(V... elements) {
-    Preconditions.checkNotNull(elements);
-    if (elements.length == 0) {
-      return empty();
-    }
-    Stream.of(elements).forEach(Preconditions::checkNotNull);
-    return new TwoPhaseSet<>(Sets.newHashSet(elements), new HashSet<>());
+  public static <V> TwoPhaseSet<V> of(V first, V... others) {
+    Preconditions.checkNotNull(first);
+    Preconditions.checkNotNull(others);
+
+    Stream.of(others).forEach(Preconditions::checkNotNull);
+    Set<V> elements = Sets.newHashSet(others);
+    elements.add(first);
+    return new TwoPhaseSet<>(elements, new HashSet<>());
   }
 
   /**
@@ -232,12 +233,9 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
   public static <V> TwoPhaseSet<V> create(Collection<V> added, Collection<V> tombstones) {
     Preconditions.checkNotNull(added);
     Preconditions.checkNotNull(tombstones);
-    if (added.isEmpty() && tombstones.isEmpty()) {
-      return empty();
-    }
+
     added.forEach(Preconditions::checkNotNull);
     tombstones.forEach(Preconditions::checkNotNull);
-
-    return new TwoPhaseSet<>(new HashSet<>(added), new HashSet<>(tombstones));
+    return new TwoPhaseSet<>(Sets.newHashSet(added), Sets.newHashSet(tombstones));
   }
 }
