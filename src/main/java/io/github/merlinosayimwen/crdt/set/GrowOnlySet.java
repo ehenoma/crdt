@@ -4,47 +4,43 @@
 
 package io.github.merlinosayimwen.crdt.set;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import io.github.merlinosayimwen.crdt.Mergeable;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  *
  * @param <V>
  */
 public final class GrowOnlySet<V> implements ReplicatedSet<V>, Mergeable<GrowOnlySet<V>> {
-  private static final class Lazy {
-    // Initialization-on-demand holder idiom
-    static final GrowOnlySet<?> EMPTY = new GrowOnlySet<>(Collections.emptyList());
-  }
+  private Set<V> elements;
 
-  private Collection<V> elements;
-
-  private GrowOnlySet(Collection<V> elements) {
+  private GrowOnlySet(Set<V> elements) {
     this.elements = elements;
   }
 
   @Override
   public GrowOnlySet<V> merge(GrowOnlySet<V> other) {
+    Preconditions.checkNotNull(other);
     if (elements.isEmpty() && other.elements.isEmpty()) {
       return GrowOnlySet.empty();
     }
-    Collection<V> merged =
-        Stream.concat(elements.stream(), other.elements.stream()).collect(Collectors.toSet());
-    return GrowOnlySet.of(merged);
+
+    return GrowOnlySet.of(Sets.union(elements, other.elements));
   }
 
   @Override
   public void add(V element) {
-    if (contains(element)) {
-      return;
-    }
     elements.add(element);
+  }
+
+  @Override
+  public boolean clear() {
+    return false;
   }
 
   @Override
@@ -67,20 +63,19 @@ public final class GrowOnlySet<V> implements ReplicatedSet<V>, Mergeable<GrowOnl
     return new HashSet<>(elements);
   }
 
-  @SuppressWarnings("unchecked")
   public static <V> GrowOnlySet<V> empty() {
-    return (GrowOnlySet<V>) Lazy.EMPTY;
+    return of(Sets.newHashSet());
   }
 
   public static <V> GrowOnlySet<V> of(Collection<V> elements) {
-    return empty();
+    return new GrowOnlySet<>(Sets.newHashSet(elements));
   }
 
   public static <V> GrowOnlySet<V> of(Iterable<V> elements) {
-    return empty();
+    return new GrowOnlySet<>(Sets.newHashSet(elements));
   }
 
   public static <V> GrowOnlySet<V> of(V... elements) {
-    return empty();
+    return new GrowOnlySet<>(Sets.newHashSet(elements));
   }
 }

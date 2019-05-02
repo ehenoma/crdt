@@ -30,12 +30,12 @@ import io.github.merlinosayimwen.crdt.Mergeable;
  */
 public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhaseSet<V>> {
   /** The current and past elements of the set. */
-  private Collection<V> added;
+  private Set<V> added;
 
-  /** List of removed elements, called tombstones. */
-  private Collection<V> tombstones;
+  /** Set of removed elements, called tombstones. */
+  private Set<V> tombstones;
 
-  private TwoPhaseSet(Collection<V> added, Collection<V> tombstones) {
+  private TwoPhaseSet(Set<V> added, Set<V> tombstones) {
     this.added = added;
     this.tombstones = tombstones;
   }
@@ -77,14 +77,17 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
    * to be removed, it has to be in the added elements.
    *
    * @param element The element to remove.
-   * @return Set that does not contain the element.
+   * @return True if the element has been removed.
    */
   @Override
   public boolean remove(V element) {
-    if (hasTombstone(element)) {
-      return false;
-    }
     tombstones.add(element);
+    return true;
+  }
+
+  @Override
+  public boolean clear() {
+    tombstones.addAll(added);
     return true;
   }
 
@@ -193,12 +196,12 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
 
   public static <V> TwoPhaseSet<V> of(Iterable<V> elements) {
     Preconditions.checkNotNull(elements);
-    Collection<V> added = new HashSet<>();
+    Set<V> added = Sets.newHashSet();
     for (V element : elements) {
       Preconditions.checkNotNull(element);
       added.add(element);
     }
-    return new TwoPhaseSet<>(added, new HashSet<>());
+    return new TwoPhaseSet<>(added, Sets.newHashSet());
   }
 
   @SafeVarargs
@@ -218,7 +221,7 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
    * @return Empty TwoPhaseSet.
    */
   public static <V> TwoPhaseSet<V> empty() {
-    return new TwoPhaseSet<>(new HashSet<>(), new HashSet<>());
+    return new TwoPhaseSet<>(Sets.newHashSet(), Sets.newHashSet());
   }
 
   /**

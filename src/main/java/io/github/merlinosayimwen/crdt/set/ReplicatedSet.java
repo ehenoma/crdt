@@ -17,6 +17,8 @@ public interface ReplicatedSet<E> {
 
   void add(E element);
 
+  boolean clear();
+
   boolean remove(E element);
 
   boolean contains(E value);

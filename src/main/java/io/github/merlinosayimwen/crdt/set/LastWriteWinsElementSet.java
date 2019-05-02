@@ -4,12 +4,16 @@
 
 package io.github.merlinosayimwen.crdt.set;
 
-import com.google.common.base.Preconditions;
-import io.github.merlinosayimwen.crdt.Mergeable;
-
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
+
+import io.github.merlinosayimwen.crdt.Mergeable;
+
 
 /**
  * Replicated set that allows elements to be reinserted after removal by making the last update win.
@@ -25,9 +29,13 @@ import java.util.*;
 public final class LastWriteWinsElementSet<E> implements ReplicatedSet<E>, Mergeable<LastWriteWinsElementSet<E>> {
 
   /**
-   *
+   * Records the last mutation of an element and its timestamp.
+   * <p>Mutations are the add and remove operations. Every mutation corresponds
+   * to a past or current element in the LWW-Set. To check whether an element is
+   * currently contained in the set, the set checks whether the most recent mutating
+   * operation was an add.
    */
-  static final class Mutation {
+  public static final class Mutation {
     private static final long INVALID_MILLIS = 0;
     private static final class Lazy {
       static final Instant EMPTY_INSTANT = Instant.ofEpochMilli(INVALID_MILLIS);
@@ -42,27 +50,27 @@ public final class LastWriteWinsElementSet<E> implements ReplicatedSet<E>, Merge
       this.remove = remove;
     }
 
-    Instant removeTime() {
+    public Instant removeTime() {
       return remove;
     }
 
-    Instant addTime() {
+    public Instant addTime() {
       return add;
     }
 
-    boolean isUpdateWrite() {
+    public boolean isUpdateWrite() {
       return add.isAfter(remove);
     }
 
-    boolean hasBeenRemoved() {
+    public boolean hasBeenRemoved() {
       return remove.toEpochMilli() == INVALID_MILLIS;
     }
 
-    boolean hasBeenAdded() {
+    public boolean hasBeenAdded() {
       return add.toEpochMilli() == INVALID_MILLIS;
     }
 
-    Mutation merge(Mutation target) {
+    public Mutation merge(Mutation target) {
       Preconditions.checkNotNull(target);
       return Mutation.create(
         mergeInstant(add, target.add),
@@ -74,17 +82,17 @@ public final class LastWriteWinsElementSet<E> implements ReplicatedSet<E>, Merge
       return left.isBefore(right) ? right : left;
     }
 
-    static Mutation empty() {
+    public static Mutation empty() {
       return Lazy.EMPTY;
     }
 
-    static Mutation create(Instant left, Instant right) {
+    public static Mutation create(Instant left, Instant right) {
       Preconditions.checkNotNull(left);
       Preconditions.checkNotNull(right);
       return new Mutation(left, right);
     }
 
-    static Mutation merge(Mutation left, Mutation right) {
+    public static Mutation merge(Mutation left, Mutation right) {
       return left.merge(right);
     }
   }
@@ -117,7 +125,7 @@ public final class LastWriteWinsElementSet<E> implements ReplicatedSet<E>, Merge
 
   @Override
   public Set<E> toSet() {
-    Set<E> present = new HashSet<>();
+    Set<E> present = Sets.newHashSet();
     for (Map.Entry<E, Mutation> element : elements.entrySet()) {
       if (element.getValue().isUpdateWrite()) {
         continue;
@@ -125,6 +133,17 @@ public final class LastWriteWinsElementSet<E> implements ReplicatedSet<E>, Merge
       present.add(element.getKey());
     }
     return present;
+  }
+
+  @Override
+  public boolean clear() {
+    for (Map.Entry<E, Mutation> entry : elements.entrySet()) {
+      if (!entry.getValue().isUpdateWrite()) {
+        continue;
+      }
+      remove(entry.getKey());
+    }
+    return true;
   }
 
   @Override
