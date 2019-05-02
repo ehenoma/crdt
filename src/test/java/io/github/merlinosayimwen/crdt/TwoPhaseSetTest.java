@@ -141,6 +141,21 @@ public final class TwoPhaseSetTest {
   }
 
   /**
+   * Merges two empty sets, asserts that the returned set is also empty and
+   * asserts that modifications to the original set do not effect the merged set.
+   */
+  @Test
+  public void testMerge_twoEmptySets() {
+    TwoPhaseSet<String> left = TwoPhaseSet.empty();
+    TwoPhaseSet<String> merged = left.merge(TwoPhaseSet.empty());
+
+    assertEquals(0, merged.size());
+
+    left.add("a");
+    assertEquals(0, merged.size());
+  }
+
+  /**
    * Merges a set with a tombstone for element A, with another
    * set that contains element A and ensures that A is not
    * in the merge result and a tombstone for A exists.
