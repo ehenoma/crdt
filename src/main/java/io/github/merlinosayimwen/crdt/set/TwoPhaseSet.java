@@ -58,9 +58,6 @@ public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhas
   @Override
   public void add(V element) {
     Preconditions.checkNotNull(element);
-    if (added.contains(element)) {
-      return;
-    }
     if (hasTombstone(element)) {
       // The element already has a tombstone and adding it would
       // not have an effect onto the set.
