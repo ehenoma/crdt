@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
+import com.jparams.verifier.tostring.ToStringVerifier;
+import io.github.merlinosayimwen.crdt.set.TwoPhaseSet;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.github.merlinosayimwen.crdt.set.TwoPhaseSet;
 
+import static io.github.merlinosayimwen.crdt.ReplicatedSetTests.assertContains;
 import static org.junit.Assert.*;
 
 /**
@@ -64,10 +66,15 @@ public final class TwoPhaseSetTest {
     }
   }
 
-  private void assertContains(TwoPhaseSet<String> set, Collection<String> elements) {
-    for (String element : elements) {
-      assertTrue(set.contains(element));
-    }
+  /**
+   * Asserts that the toString() method is returning an accurate representation.
+   */
+  @Test
+  public void testToString() {
+    ToStringVerifier
+      .forClass(TwoPhaseSet.class)
+      .withPrefabValue(TwoPhaseSet.class, TwoPhaseSet.empty())
+      .verify();
   }
 
   @Test
@@ -118,6 +125,19 @@ public final class TwoPhaseSetTest {
   public void testSize_equalElements() {
     TwoPhaseSet<String> set = TwoPhaseSet.of("a", "b", "b");
     assertEquals(2, set.size());
+  }
+
+  /**
+   * Adds an element to a set with no tombstone of that element and
+   * asserts that the element has been added successfully.
+   */
+  @Test
+  public void testAdd_noTombstone() {
+    TwoPhaseSet<String> set = TwoPhaseSet.empty();
+    assertEquals(0, set.size());
+
+    set.add("a");
+    assertContains(set, "a");
   }
 
   /**
