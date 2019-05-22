@@ -4,28 +4,30 @@
 
 package io.github.merlinosayimwen.crtd.set;
 
-import com.google.common.base.Preconditions;
-
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+
+import com.google.common.base.Preconditions;
 
 /**
- * Replicated set that allows elements to be reinserted after removal by making the last update win.
+ * Replicated set that allows elements to be reinserted after removal by making
+ * the last update win.
  * <p>
- * Every element is bound to a {@code Mutation}, which stores information of its recent changes.
- * Elements can be added and removed from the set at every time and will update the elements mutation
- * information's last add (or remove) timestamp to the current time. When checking if an element is
- * inside the set, the last add is compared to the last remove and which of them both occurred more
- * recent, does win.
+ * Every element is bound to a {@code Mutation}, which stores information of its
+ * recent changes. Elements can be added and removed from the set at every time
+ * and will update the elements mutation information's last add (or remove)
+ * timestamp to the current time. When checking if an element is  inside the set
+ * the last add is compared to the last remove and which of them both occurred
+ * more recent, does win.
  *
  * @param <E> Type of the sets elements.
  */
-public final class LastWriteWinsElementSet<E> implements MergeableReplicatedSet<E, LastWriteWinsElementSet<E>> {
+public final class LastWriteWinsElementSet<E>
+  implements MergeableReplicatedSet<E, LastWriteWinsElementSet<E>> {
 
-  /**
-   *
-   */
   static final class Mutation {
     private static final long INVALID_MILLIS = 0;
     private static final class Lazy {
