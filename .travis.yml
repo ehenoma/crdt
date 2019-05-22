@@ -14,4 +14,9 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 script:
-  - gradle -PossrhUsername=OSSRH_USERNAME -PossrhPassword=OSSRH_PASSWORD uploadArchives
+  - |
+    ./gradlew sonarqube \
+      -Dsonar.projectKey=merlinosayimwen_crdt \
+      -Dsonar.organization=merlinosayimwen-github \
+      -Dsonar.host.url=https://sonarcloud.io \
+      -Dsonar.login=$SONAR_LOGIN

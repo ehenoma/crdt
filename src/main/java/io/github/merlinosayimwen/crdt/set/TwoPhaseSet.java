@@ -2,10 +2,7 @@
 // Use of this source code is governed by a MIT-style license that can be
 // found in the LICENSE file.
 
-package io.github.merlinosayimwen.crtd.set;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
+package io.github.merlinosayimwen.crdt.set;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,7 +10,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Collections.emptySet;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
+
+import io.github.merlinosayimwen.crdt.Mergeable;
 
 /**
  * Append only set implementation that uses tombstones to indicate removed elements.
@@ -27,14 +28,14 @@ import static java.util.Collections.emptySet;
  * @see ReplicatedSet
  * @param <V> Type of the sets elements.
  */
-public final class TwoPhaseSet<V> implements MergeableReplicatedSet<V, TwoPhaseSet<V>> {
+public final class TwoPhaseSet<V> implements ReplicatedSet<V>, Mergeable<TwoPhaseSet<V>> {
   /** The current and past elements of the set. */
-  private Collection<V> added;
+  private Set<V> added;
 
-  /** List of removed elements, called tombstones. */
-  private Collection<V> tombstones;
+  /** Set of removed elements, called tombstones. */
+  private Set<V> tombstones;
 
-  private TwoPhaseSet(Collection<V> added, Collection<V> tombstones) {
+  private TwoPhaseSet(Set<V> added, Set<V> tombstones) {
     this.added = added;
     this.tombstones = tombstones;
   }
@@ -57,9 +58,6 @@ public final class TwoPhaseSet<V> implements MergeableReplicatedSet<V, TwoPhaseS
   @Override
   public void add(V element) {
     Preconditions.checkNotNull(element);
-    if (added.contains(element)) {
-      return;
-    }
     if (hasTombstone(element)) {
       // The element already has a tombstone and adding it would
       // not have an effect onto the set.
@@ -76,14 +74,17 @@ public final class TwoPhaseSet<V> implements MergeableReplicatedSet<V, TwoPhaseS
    * to be removed, it has to be in the added elements.
    *
    * @param element The element to remove.
-   * @return Set that does not contain the element.
+   * @return True if the element has been removed.
    */
   @Override
   public boolean remove(V element) {
-    if (hasTombstone(element)) {
-      return false;
-    }
     tombstones.add(element);
+    return true;
+  }
+
+  @Override
+  public boolean clear() {
+    tombstones.addAll(added);
     return true;
   }
 
@@ -111,9 +112,9 @@ public final class TwoPhaseSet<V> implements MergeableReplicatedSet<V, TwoPhaseS
     if (size() == 0 && other.size() == 0) {
       return TwoPhaseSet.empty();
     }
-    Collection<V> added = mergeSets(this.added, other.added);
-    Collection<V> tombstones = mergeSets(this.tombstones, other.tombstones);
-    return TwoPhaseSet.create(added, tombstones);
+    Collection<V> mergedAdds = mergeSets(this.added, other.added);
+    Collection<V> mergedTombstones = mergeSets(this.tombstones, other.tombstones);
+    return TwoPhaseSet.create(mergedAdds, mergedTombstones);
   }
 
   /**
@@ -123,7 +124,7 @@ public final class TwoPhaseSet<V> implements MergeableReplicatedSet<V, TwoPhaseS
    */
   @Override
   public int size() {
-    return added.size() - tombstones.size();
+    return (int) added.stream().filter(this::isNotRemoved).count();
   }
 
   private boolean isNotRemoved(V value) {
@@ -159,7 +160,7 @@ public final class TwoPhaseSet<V> implements MergeableReplicatedSet<V, TwoPhaseS
    * @return Elements that have been removed from the set.
    */
   public Set<V> tombstones() {
-    return new HashSet<>(added);
+    return new HashSet<>(tombstones);
   }
 
   @Override
@@ -171,8 +172,12 @@ public final class TwoPhaseSet<V> implements MergeableReplicatedSet<V, TwoPhaseS
         .toString();
   }
 
+  private static <V> Collection<V> mergeSets(Collection<V> left, Collection<V> right) {
+    return Stream.concat(left.stream(), right.stream()).collect(Collectors.toSet());
+  }
+
   /**
-   * Creates a TwoPhaseSet with no removed elements.
+   * Creates a TwoPhaseSet with no tombstones.
    *
    * @param elements Set of elements in the TwoPhaseSet.
    * @param <V> Type of the sets elements.
@@ -188,23 +193,23 @@ public final class TwoPhaseSet<V> implements MergeableReplicatedSet<V, TwoPhaseS
 
   public static <V> TwoPhaseSet<V> of(Iterable<V> elements) {
     Preconditions.checkNotNull(elements);
-    Collection<V> added = new HashSet<>();
+    Set<V> added = Sets.newHashSet();
     for (V element : elements) {
       Preconditions.checkNotNull(element);
       added.add(element);
     }
-    return new TwoPhaseSet<>(added, emptySet());
+    return new TwoPhaseSet<>(added, Sets.newHashSet());
   }
 
   @SafeVarargs
-  public static <V> TwoPhaseSet<V> of(V... elements) {
-    Preconditions.checkNotNull(elements);
-    if (elements.length == 0) {
-      return empty();
-    }
-    Collection<V> added =
-        Stream.of(elements).peek(Preconditions::checkNotNull).collect(Collectors.toSet());
-    return new TwoPhaseSet<>(added, emptySet());
+  public static <V> TwoPhaseSet<V> of(V first, V... others) {
+    Preconditions.checkNotNull(first);
+    Preconditions.checkNotNull(others);
+
+    Stream.of(others).forEach(Preconditions::checkNotNull);
+    Set<V> elements = Sets.newHashSet(others);
+    elements.add(first);
+    return new TwoPhaseSet<>(elements, new HashSet<>());
   }
 
   /**
@@ -214,32 +219,23 @@ public final class TwoPhaseSet<V> implements MergeableReplicatedSet<V, TwoPhaseS
    * @return Empty TwoPhaseSet.
    */
   public static <V> TwoPhaseSet<V> empty() {
-    return new TwoPhaseSet<>(emptySet(), emptySet());
+    return new TwoPhaseSet<>(Sets.newHashSet(), Sets.newHashSet());
   }
 
   /**
+   * Creates a TwoPhaseSet with an initial set of added and removed elements.
+   *
    * @param added Elements that have been added to the set.
-   * @param removed Subset of the added elements, contains removed elements;
+   * @param tombstones Set of initial tombstones.
    * @param <V> Type of the sets elements.
    * @return Instance of a TwoPhaseSet.
    */
-  public static <V> TwoPhaseSet<V> create(Collection<V> added, Collection<V> removed) {
+  public static <V> TwoPhaseSet<V> create(Collection<V> added, Collection<V> tombstones) {
     Preconditions.checkNotNull(added);
-    Preconditions.checkNotNull(removed);
-    if (added.isEmpty()) {
-      // The collection of added elements is empty. In this case there
-      // may not be any removed elements. Since the TwoPhaseSet is immutable,
-      // we can create a lazy instance of an empty set.
-      Preconditions.checkArgument(removed.isEmpty());
-      return empty();
-    }
+    Preconditions.checkNotNull(tombstones);
+
     added.forEach(Preconditions::checkNotNull);
-    removed.forEach(Preconditions::checkNotNull);
-
-    return new TwoPhaseSet<>(added, removed);
-  }
-
-  private static <V> Collection<V> mergeSets(Collection<V> left, Collection<V> right) {
-    return Stream.concat(left.stream(), right.stream()).collect(Collectors.toSet());
+    tombstones.forEach(Preconditions::checkNotNull);
+    return new TwoPhaseSet<>(Sets.newHashSet(added), Sets.newHashSet(tombstones));
   }
 }

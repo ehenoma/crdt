@@ -2,15 +2,28 @@
 // Use of this source code is governed by a MIT-style license that can be
 // found in the LICENSE file.
 
+<<<<<<< HEAD:src/main/java/io/github/merlinosayimwen/crtd/set/LastWriteWinsElementSet.java
 package io.github.merlinosayimwen.crtd.set;
+=======
+package io.github.merlinosayimwen.crdt.set;
+>>>>>>> c5fc174dc19bf74ab69f8cb9f9dad349e35ac991:src/main/java/io/github/merlinosayimwen/crdt/set/LastWriteWinsElementSet.java
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
+<<<<<<< HEAD:src/main/java/io/github/merlinosayimwen/crtd/set/LastWriteWinsElementSet.java
 import java.util.HashSet;
 
 import com.google.common.base.Preconditions;
+=======
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
+
+import io.github.merlinosayimwen.crdt.Mergeable;
+
+>>>>>>> c5fc174dc19bf74ab69f8cb9f9dad349e35ac991:src/main/java/io/github/merlinosayimwen/crdt/set/LastWriteWinsElementSet.java
 
 /**
  * Replicated set that allows elements to be reinserted after removal by making
@@ -25,10 +38,23 @@ import com.google.common.base.Preconditions;
  *
  * @param <E> Type of the sets elements.
  */
+<<<<<<< HEAD:src/main/java/io/github/merlinosayimwen/crtd/set/LastWriteWinsElementSet.java
 public final class LastWriteWinsElementSet<E>
   implements MergeableReplicatedSet<E, LastWriteWinsElementSet<E>> {
 
   static final class Mutation {
+=======
+public final class LastWriteWinsElementSet<E> implements ReplicatedSet<E>, Mergeable<LastWriteWinsElementSet<E>> {
+
+  /**
+   * Records the last mutation of an element and its timestamp.
+   * <p>Mutations are the add and remove operations. Every mutation corresponds
+   * to a past or current element in the LWW-Set. To check whether an element is
+   * currently contained in the set, the set checks whether the most recent mutating
+   * operation was an add.
+   */
+  public static final class Mutation {
+>>>>>>> c5fc174dc19bf74ab69f8cb9f9dad349e35ac991:src/main/java/io/github/merlinosayimwen/crdt/set/LastWriteWinsElementSet.java
     private static final long INVALID_MILLIS = 0;
     private static final class Lazy {
       static final Instant EMPTY_INSTANT = Instant.ofEpochMilli(INVALID_MILLIS);
@@ -43,27 +69,27 @@ public final class LastWriteWinsElementSet<E>
       this.remove = remove;
     }
 
-    Instant removeTime() {
+    public Instant removeTime() {
       return remove;
     }
 
-    Instant addTime() {
+    public Instant addTime() {
       return add;
     }
 
-    boolean isUpdateWrite() {
+    public boolean isUpdateWrite() {
       return add.isAfter(remove);
     }
 
-    boolean hasBeenRemoved() {
+    public boolean hasBeenRemoved() {
       return remove.toEpochMilli() == INVALID_MILLIS;
     }
 
-    boolean hasBeenAdded() {
+    public boolean hasBeenAdded() {
       return add.toEpochMilli() == INVALID_MILLIS;
     }
 
-    Mutation merge(Mutation target) {
+    public Mutation merge(Mutation target) {
       Preconditions.checkNotNull(target);
       return Mutation.create(
         mergeInstant(add, target.add),
@@ -75,17 +101,17 @@ public final class LastWriteWinsElementSet<E>
       return left.isBefore(right) ? right : left;
     }
 
-    static Mutation empty() {
+    public static Mutation empty() {
       return Lazy.EMPTY;
     }
 
-    static Mutation create(Instant left, Instant right) {
+    public static Mutation create(Instant left, Instant right) {
       Preconditions.checkNotNull(left);
       Preconditions.checkNotNull(right);
       return new Mutation(left, right);
     }
 
-    static Mutation merge(Mutation left, Mutation right) {
+    public static Mutation merge(Mutation left, Mutation right) {
       return left.merge(right);
     }
   }
@@ -118,7 +144,7 @@ public final class LastWriteWinsElementSet<E>
 
   @Override
   public Set<E> toSet() {
-    Set<E> present = new HashSet<>();
+    Set<E> present = Sets.newHashSet();
     for (Map.Entry<E, Mutation> element : elements.entrySet()) {
       if (element.getValue().isUpdateWrite()) {
         continue;
@@ -126,6 +152,17 @@ public final class LastWriteWinsElementSet<E>
       present.add(element.getKey());
     }
     return present;
+  }
+
+  @Override
+  public boolean clear() {
+    for (Map.Entry<E, Mutation> entry : elements.entrySet()) {
+      if (!entry.getValue().isUpdateWrite()) {
+        continue;
+      }
+      remove(entry.getKey());
+    }
+    return true;
   }
 
   @Override
