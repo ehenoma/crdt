@@ -2,28 +2,19 @@
 // Use of this source code is governed by a MIT-style license that can be
 // found in the LICENSE file.
 
-<<<<<<< HEAD:src/main/java/io/github/merlinosayimwen/crtd/set/LastWriteWinsElementSet.java
-package io.github.merlinosayimwen.crtd.set;
-=======
 package io.github.merlinosayimwen.crdt.set;
->>>>>>> c5fc174dc19bf74ab69f8cb9f9dad349e35ac991:src/main/java/io/github/merlinosayimwen/crdt/set/LastWriteWinsElementSet.java
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
-<<<<<<< HEAD:src/main/java/io/github/merlinosayimwen/crtd/set/LastWriteWinsElementSet.java
 import java.util.HashSet;
-
-import com.google.common.base.Preconditions;
-=======
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 import io.github.merlinosayimwen.crdt.Mergeable;
 
->>>>>>> c5fc174dc19bf74ab69f8cb9f9dad349e35ac991:src/main/java/io/github/merlinosayimwen/crdt/set/LastWriteWinsElementSet.java
 
 /**
  * Replicated set that allows elements to be reinserted after removal by making
@@ -38,13 +29,8 @@ import io.github.merlinosayimwen.crdt.Mergeable;
  *
  * @param <E> Type of the sets elements.
  */
-<<<<<<< HEAD:src/main/java/io/github/merlinosayimwen/crtd/set/LastWriteWinsElementSet.java
 public final class LastWriteWinsElementSet<E>
   implements MergeableReplicatedSet<E, LastWriteWinsElementSet<E>> {
-
-  static final class Mutation {
-=======
-public final class LastWriteWinsElementSet<E> implements ReplicatedSet<E>, Mergeable<LastWriteWinsElementSet<E>> {
 
   /**
    * Records the last mutation of an element and its timestamp.
@@ -54,7 +40,6 @@ public final class LastWriteWinsElementSet<E> implements ReplicatedSet<E>, Merge
    * operation was an add.
    */
   public static final class Mutation {
->>>>>>> c5fc174dc19bf74ab69f8cb9f9dad349e35ac991:src/main/java/io/github/merlinosayimwen/crdt/set/LastWriteWinsElementSet.java
     private static final long INVALID_MILLIS = 0;
     private static final class Lazy {
       static final Instant EMPTY_INSTANT = Instant.ofEpochMilli(INVALID_MILLIS);
